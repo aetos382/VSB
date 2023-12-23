@@ -73,7 +73,6 @@ public ref partial struct ValueStringBuilder
 
             this.AppendAlignedChars(str.AsSpan(), alignment);
 
-
             static string ConvertToString(
                 object value,
                 IFormatProvider? formatProvider)
