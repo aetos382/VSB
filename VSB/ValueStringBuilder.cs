@@ -56,6 +56,13 @@ public ref partial struct ValueStringBuilder
         return new BufferWriter(this._core);
     }
 
+    // using 変数のプロパティは設定できないので、Length をセットする代わりに使う
+    public void SetLength(
+        int length)
+    {
+        this.Length = length;
+    }
+
     public char[] ToArray()
     {
         return this._core.GetBuffer(BufferType.Content).ToArray();

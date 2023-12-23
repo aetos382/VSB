@@ -19,11 +19,6 @@ public ref partial struct ValueStringBuilder
         public void Append(
             ReadOnlySpan<char> value)
         {
-            if (value.IsEmpty)
-            {
-                return;
-            }
-
             var valueLength = value.Length;
             var lengthToGrow = valueLength - this.FreeCapacity;
 

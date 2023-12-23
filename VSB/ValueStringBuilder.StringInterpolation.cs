@@ -52,7 +52,7 @@ public ref partial struct ValueStringBuilder
 
             if (value is string s)
             {
-                this.AppendAlignedString(s, alignment);
+                this.AppendAlignedChars(s.AsSpan(), alignment);
                 return;
             }
 
@@ -71,7 +71,7 @@ public ref partial struct ValueStringBuilder
                 _ => ConvertToString(value, formatProvider)
             };
 
-            this.AppendAlignedString(str, alignment);
+            this.AppendAlignedChars(str.AsSpan(), alignment);
 
 
             static string ConvertToString(
@@ -86,9 +86,10 @@ public ref partial struct ValueStringBuilder
         }
 
         public void AppendFormatted(
-            ReadOnlySpan<char> value)
+            ReadOnlySpan<char> value,
+            int alignment = 0)
         {
-            this.AppendChars(value);
+            this.AppendAlignedChars(value, alignment);
         }
 
         private void AppendSpanFormattable(
@@ -136,17 +137,18 @@ public ref partial struct ValueStringBuilder
             writer.Advance(Math.Max(minimumLength, charsWritten));
         }
 
-        private void AppendAlignedString(
-            string value,
+        private void AppendAlignedChars(
+            ReadOnlySpan<char> value,
             int alignment)
         {
             var length = value.Length;
 
-            var fill = Math.Max(Math.Abs(alignment) - length, 0);
-            length += fill;
+            var minimumLength = Math.Abs(alignment);
+            var totalLength = Math.Max(value.Length, minimumLength);
+            var fill = Math.Max(minimumLength - length, 0);
 
             var writer = this._builder.GetWriter();
-            var buffer = writer.GetSpan(length).Slice(0, length);
+            var buffer = writer.GetSpan(totalLength);
 
             if (fill > 0 && alignment > 0)
             {
@@ -154,16 +156,15 @@ public ref partial struct ValueStringBuilder
                 buffer = buffer.Slice(fill);
             }
 
-            value.AsSpan().CopyTo(buffer);
-            buffer = buffer.Slice(fill);
+            value.CopyTo(buffer);
+            buffer = buffer.Slice(length);
 
             if (fill > 0 && alignment < 0)
             {
-                Debug.Assert(buffer.Length == fill);
-                buffer.Fill(' ');
+                buffer.Slice(0, fill).Fill(' ');
             }
 
-            writer.Advance(length);
+            writer.Advance(totalLength);
         }
 
         private void AppendChars(
