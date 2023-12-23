@@ -87,7 +87,10 @@ public ref partial struct ValueStringBuilder
         {
             Debug.Assert(lengthToGrow > 0);
 
-            var newCapacity = this._capacity + Math.Max(lengthToGrow, this._capacity);
+            var capacity = this._capacity;
+            lengthToGrow = Math.Max(lengthToGrow, capacity);
+
+            var newCapacity = capacity + lengthToGrow;
             var newMemory = MemoryPool<char>.Shared.Rent(newCapacity);
             var newBuffer = newMemory.Memory.Span;
 
@@ -100,7 +103,7 @@ public ref partial struct ValueStringBuilder
             this._capacity = newCapacity;
             this._buffer = GetPointer(newBuffer);
 
-            ValueStringBuilderEventSource.Log.Grown();
+            ValueStringBuilderEventSource.Log.Grown(lengthToGrow);
         }
 
         internal Span<char> GetBuffer(
