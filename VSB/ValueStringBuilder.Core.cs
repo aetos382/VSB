@@ -6,7 +6,7 @@ namespace VSB;
 
 public ref partial struct ValueStringBuilder
 {
-    private unsafe class ValueStringBuilderCore :
+    private sealed unsafe class ValueStringBuilderCore :
         IDisposable
     {
         public ValueStringBuilderCore(

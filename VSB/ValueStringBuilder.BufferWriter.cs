@@ -5,7 +5,7 @@ namespace VSB;
 
 public ref partial struct ValueStringBuilder
 {
-    private class BufferWriter :
+    private sealed class BufferWriter :
         IBufferWriter<char>
     {
         public BufferWriter(
