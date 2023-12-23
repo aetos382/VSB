@@ -73,7 +73,7 @@ public ref partial struct ValueStringBuilder
     {
         this.CheckDisposed();
 
-        return this.TryCopyTo(destination, 0, this.Length);
+        return this.TryCopyToNoCheck(destination, 0, this.Length);
     }
 
     public bool TryCopyTo(
@@ -88,8 +88,7 @@ public ref partial struct ValueStringBuilder
 
         this.CheckDisposed();
 
-        var source = this._core.GetBuffer(BufferType.Content).Slice(offset, length);
-        return source.TryCopyTo(destination);
+        return this.TryCopyToNoCheck(destination, offset, length);
     }
 
     public bool TryCopyTo(
@@ -100,7 +99,7 @@ public ref partial struct ValueStringBuilder
 
         var (offset, length) = range.GetOffsetAndLength(this.Length);
 
-        return this.TryCopyTo(destination, offset, length);
+        return this.TryCopyToNoCheck(destination, offset, length);
     }
 
     public void Dispose()
@@ -131,6 +130,15 @@ public ref partial struct ValueStringBuilder
         scoped ReadOnlySpan<char> value)
     {
         this._core.Append(value);
+    }
+
+    private bool TryCopyToNoCheck(
+        scoped Span<char> destination,
+        int offset,
+        int length)
+    {
+        var source = this._core.GetBuffer(BufferType.Content).Slice(offset, length);
+        return source.TryCopyTo(destination);
     }
 
     private void CheckDisposed()
